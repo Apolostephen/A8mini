@@ -1,5 +1,4 @@
 import socket
-import sys
 import rospy
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
@@ -90,7 +89,6 @@ def poseCallback(msg):
     low = p_result & 0x00FF
     data.append(low)
     data.append(high)
-    #while True:
     # 发送数据
     addr = ("192.168.144.25",37260) #发送消息至目标的地址
     data_bytes = bytes([x & 0xFF for x in data])
@@ -99,96 +97,10 @@ def poseCallback(msg):
     data.clear()
 
 
-# def poseCallback(msg):
-#     roll,pitch,yaw = quaternion_to_euler(msg)
-#     pitch = pitch*10
-#     yaw = yaw*10
-    
-#     hex_pitch = int(pitch)
-#     hex_yaw = int(yaw)
-#     import ipdb;ipdb.set_trace()
-#     hex_pitch_high = (hex_pitch & 0xff00) >>8
-#     hex_pitch_low = (hex_pitch & 0x00ff)
-#     hex_yaw_high = (hex_yaw & 0xff00) >>8
-#     hex_yaw_low = (hex_yaw & 0x00ff)
-#     import ipdb;ipdb.set_trace()
-#     data.append(hex_yaw_low)
-#     data.append(hex_yaw_high)
-#     data.append(hex_pitch_low)
-#     data.append(hex_pitch_high)
-#     crc_check_16bites(data, len(data))
-#     high = (p_result & 0xff00) >> 8
-#     low = p_result & 0x00FF
-#     data.append(low)
-#     data.append(high)
-#     #while True:
-#     # 发送数据
-#     addr = ("192.168.144.25",37260) #发送消息至目标的地址
-#     data_bytes = bytes([x & 0xFF for x in data])
-#     #data_bytes = bytes(data)
-#     udp_socket.sendto(data_bytes, addr)
-
-
-# def quaternion_to_euler(quaternion):
-#     x = quaternion.orientation.x
-#     y = quaternion.orientation.y
-#     z = quaternion.orientation.z
-#     w = quaternion.orientation.w
-
-#     # roll (x-axis rotation)
-#     sinr_cosp = 2 * (w * x + y * z)
-#     cosr_cosp = 1 - 2 * (x * x + y * y)
-#     roll = math.atan2(sinr_cosp, cosr_cosp)
-
-#     # pitch (y-axis rotation)
-#     sinp = 2 * (w * y - z * x)
-#     if abs(sinp) >= 1:
-#         pitch = math.copysign(math.pi / 2, sinp)  # use 90 degrees if out of range
-#     else:
-#         pitch = math.asin(sinp)
-
-#     # yaw (z-axis rotation)
-#     siny_cosp = 2 * (w * z + x * y)
-#     cosy_cosp = 1 - 2 * (y * y + z * z)
-#     yaw = math.atan2(siny_cosp, cosy_cosp)
-
-#     return roll, pitch, yaw
-
 if __name__ == '__main__':
 
     rospy.init_node('A8mini')
     rospy.Subscriber("/A8mini", Pose, poseCallback)
     rospy.spin()
-    # while True:
-    #     user_input = input("1.云台转向 2.回中 3.回传云台姿态 4.朝下90度 5.单轴姿态控制\n")
-    #     if user_input == '1':
-    #         data = [0x55, 0x66, 0x01, 0x02, 0x00, 0x00, 0x00, 0x07, 0x10, 0x20]
-    #     elif user_input == '2':
-    #         data = [0x55, 0x66, 0x01, 0x01, 0x00, 0x00, 0x00, 0x08, 0x01]
-    #     elif user_input == '3':
-    #         data = [0x55,0x66,0x01,0x00,0x00,0x00,0x00,0x0d,0xe8,0x05]
-    #     elif user_input == '4':
-    #         data = [0x55,0x66,0x01,0x04,0x00,0x00,0x00,0x0e,0x80,-0x05,0xff,-0x10]
-    #     elif user_input == "5":
-    #         data = [0x55,0x66,0x01,0x03,0x00,0x00,0x00,0x41,0x36,0x10,0x00]
-    #     crc_check_16bites(data, len(data))
-    #     high = (p_result & 0xff00) >> 8
-    #     print(f'高位: {high:x}')
-    #     low = p_result & 0x00FF
-    #     print(f'低位: {low:x}')
-    #     data.append(low)
-    #     data.append(high)
-    #     #while True:
-    #     # 发送数据
-    #     addr = ("192.168.144.25",37260) #发送消息至目标的地址
-    #     data_bytes = bytes([x & 0xFF for x in data])
-    #     #data_bytes = bytes(data)
-    #     udp_socket.sendto(data_bytes, addr)
-    #     print("发送成功")
-    #     # if user_input == '3':
-    #     recv_data, recv_addr = udp_socket.recvfrom(1024)
-    #     # if recv_data != b'':
-    #     #     print(f"接收到的数据为: {recv_data.decode()}")
-    #     user_input = '0'
 
         
