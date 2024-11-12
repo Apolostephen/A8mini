@@ -2,8 +2,11 @@ import socket
 import rospy
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
+from std_msgs.msg import Empty
 from tf.transformations import euler_from_quaternion
 import math
+import requests
+import json
 # 创建UDP套接字
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 p_result = 0
@@ -96,11 +99,61 @@ def poseCallback(msg):
     udp_socket.sendto(data_bytes, addr)
     data.clear()
 
-
+def captureImageCallback(msg):
+    data = [0x55,0x66,0x01,0x01,0x00,0x00,0x00,0x0c,0x00,0x34,0xce] #
+    # crc_check_16bites(data, len(data))
+    # high = (p_result & 0xff00) >> 8
+    # low = p_result & 0x00FF
+    # data.append(low)
+    # data.append(high)
+    # 发送数据
+    addr = ("192.168.144.25",37260) #发送消息至目标的地址
+    data_bytes = bytes([x & 0xFF for x in data])
+    udp_socket.sendto(data_bytes,addr)
+    data.clear()
+    look_for_photo()
+def fetch_data_from_url(url, params):
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # 检查请求是否成功
+        data = response.json()  # 假设返回的是 JSON 数据
+        print("请求成功！！")
+        json_data = json.dumps(data, indent=4, ensure_ascii=False)
+        print(json_data)
+    except requests.exceptions.RequestException as e:
+        print(f"请求失败: {e}")
+        return None
+def look_for_photo():
+    url_getdirectories = "http://192.168.144.25:82//cgi-bin/media.cgi/api/v1/getdirectories"#获取文件夹目录列表
+    url_getmediacount = "http://192.168.144.25:82//cgi-bin/media.cgi/api/v1/getmediacount" #获取文件数量
+    url_getmedialist = "http://192.168.144.25:82//cgi-bin/media.cgi/api/v1/getmedialist" #获取文件列表
+    params_getdirectories = {
+        "media_type": 0
+    }
+    params_getmediacount = {
+        "media_type": 0,
+        "path": "A"
+    }
+    params_getmedialist = {
+        "media_type": 0,
+        "path": "A",
+        "start": 0,
+        "count": 10
+    }
+    fetch_data_from_url(url_getmedialist,params_getmedialist)
 if __name__ == '__main__':
 
     rospy.init_node('A8mini')
+    data = [0x55,0x66,0x01,0x09,0x00,0x00,0x00,0x21,0x00,0x02,0x00,0x0f,0x70,0x08,0x98,0x3a,0x00,0x70,0xbe]# 4k录像流
+    addr = ("192.168.144.25",37260) #发送消息至目标的地址
+    data_bytes = bytes([x & 0xFF for x in data])
+    udp_socket.sendto(data_bytes,addr)
+    data = [0x55,0x66,0x01,0x09,0x00,0x00,0x00,0x21,0x01,0x02,0x80,0x07,0x38,0x04,0xd0,0x07,0x00,0x5a,0x68]# 拉流超高清（1080p）
+    data_bytes = bytes([x & 0xFF for x in data])
+    udp_socket.sendto(data_bytes,addr)
     rospy.Subscriber("/A8mini", Pose, poseCallback)
+    rospy.Subscriber("/A8mini/captureImage", Empty, captureImageCallback)
+    #data = [0x55,0x66,0x01,0x09,0x00,0x00,0x00,0x21,0x00,0x02,0x00,0x0f,0x70,0x08,0x98,0x3a,0x00,0x70,0xbe]
     rospy.spin()
 
         
