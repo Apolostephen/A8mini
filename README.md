@@ -1,9 +1,9 @@
 # A8mini角度控制ros包(目前仅支持roll,pitch控制)
 1. 准备工作
    
-    1. 将电脑设备的网口设置为144网段（192.168.144.xxx）后面的xxx不可设置为25
-    2. 将A8mini.py的11行设为第一步设置的ip
-    3. A8mini的rtsp流为192.168.144.25:8554/main.264
+    1. 将电脑设备的网口设置为144网段（192.168.144.xxx）后面的xxx不可设置为108
+    2. 将topotek.py的14行设为第一步设置的ip
+    3. topotek的rtsp流为192.168.144.108:554/stream=0
     4. 目标角度需要是四元数的形式
 
 2. A8mini角度控制
@@ -16,7 +16,7 @@
    
    ```python
    
-    python3 A8mini.py
+    python3 topotek.py
 
    ```
     
